@@ -1,4 +1,5 @@
 package warc
+
 /*
 	Copyright (C) 2015  Wolfgang Meyers
 
@@ -20,17 +21,17 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-//	"crypto/sha1"
-//	"encoding/hex"
+	//	"crypto/sha1"
+	//	"encoding/hex"
 	"errors"
 	"fmt"
-//	"github.com/nu7hatch/gouuid" // needed for read/write
+	//	"github.com/nu7hatch/gouuid" // needed for read/write
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
-//	"time" // needed for read/write
-	"github.com/wolfgangmeyers/go-warc/warc/utils"
+	//	"time" // needed for read/write
+	"github.com/michaelrhanson/go-warc/warc/utils"
 )
 
 var CONTENT_TYPES map[string]string = map[string]string{
@@ -77,15 +78,15 @@ type WARCHeader struct {
 }
 
 // TODO: restore 'defaults' arg for read/write
-func NewWARCHeader(headers map[string]string/*, defaults bool*/) *WARCHeader {
+func NewWARCHeader(headers map[string]string /*, defaults bool*/) *WARCHeader {
 	warcHeader := &WARCHeader{
 		"WARC/1.0",
 		utils.NewCIStringMap(),
 	}
 	warcHeader.Update(headers)
-//	if defaults {
-//		warcHeader.InitDefaults()
-//	}
+	//	if defaults {
+	//		warcHeader.InitDefaults()
+	//	}
 	return warcHeader
 }
 
@@ -185,7 +186,7 @@ func NewWARCRecord(header *WARCHeader, payload *utils.FilePart, headers map[stri
 	warcRecord := &WARCRecord{}
 	if header == nil {
 		// TODO: restore for read/write
-		header = NewWARCHeader(headers/*, true*/)
+		header = NewWARCHeader(headers /*, true*/)
 	}
 	warcRecord.header = header
 	warcRecord.payload = payload
@@ -254,7 +255,7 @@ func (wr *WARCRecord) GetPayload() *utils.FilePart {
 
 type WARCFile struct {
 	filehandle io.ReadCloser
-	filebuf *bufio.Reader
+	filebuf    *bufio.Reader
 	gzipfile   *gzip.Reader
 	reader     *WARCReader
 }
@@ -272,7 +273,7 @@ func NewWARCFile(reader io.ReadCloser) (*WARCFile, error) {
 	// keep a handle to underlying file so that it can be closed.
 	wf := &WARCFile{
 		filehandle: reader,
-		filebuf: filebuf,
+		filebuf:    filebuf,
 		gzipfile:   gzipfile,
 		reader:     NewWARCReader(filebuf, gzipfile),
 	}
@@ -321,7 +322,7 @@ func (wr *WARCReader) ReadHeader(reader *bufio.Reader) (*WARCHeader, error) {
 	headers := map[string]string{}
 	for {
 		line, err := reader.ReadString('\n')
-//		fmt.Println("*** header line - " + line)
+		//		fmt.Println("*** header line - " + line)
 		if err != nil {
 			return nil, err
 		}
@@ -336,13 +337,13 @@ func (wr *WARCReader) ReadHeader(reader *bufio.Reader) (*WARCHeader, error) {
 		headers[name] = value
 	}
 	// TODO: restore for read/write
-	return NewWARCHeader(headers/*, false*/), nil
+	return NewWARCHeader(headers /*, false*/), nil
 }
 
 func (wr *WARCReader) Expect(reader *bufio.Reader, expectedLine string, message string) error {
 	line, err := reader.ReadString('\n')
 	if err != nil {
-//		fmt.Println(err)
+		//		fmt.Println(err)
 		return err
 	}
 	if line != expectedLine {
@@ -357,7 +358,7 @@ func (wr *WARCReader) Expect(reader *bufio.Reader, expectedLine string, message 
 func (wr *WARCReader) ReadRecord() (*WARCRecord, error) {
 	reader := bufio.NewReader(wr.gzipfile)
 	header, err := wr.ReadHeader(reader)
-	
+
 	if err != nil && strings.Index(err.Error(), "EOF") > -1 {
 		return nil, errors.New("EOF")
 	}
@@ -376,7 +377,7 @@ func (wr *WARCReader) ReadRecord() (*WARCRecord, error) {
 	// start reading the next record in the gzip file
 	wr.gzipfile.Reset(wr.filehandle)
 	wr.gzipfile.Multistream(false)
-	
+
 	if err != nil {
 		return nil, err
 	}
