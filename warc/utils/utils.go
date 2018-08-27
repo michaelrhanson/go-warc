@@ -132,10 +132,10 @@ func (fp *FilePart) read(size int) ([]byte, error) {
 		tmp := make([]byte, size)
 		// if this read doesn't succeed, that's ok
 		// because the buffer might still have content
-		numRead, _ := fp.fileobj.Read(tmp)
-		//		if err != nil {
-		//			return nil, err
-		//		}
+		numRead, err := fp.fileobj.Read(tmp)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
 		tmp = tmp[:numRead]
 		content = append(fp.buf, tmp...)
 		fp.buf = []byte{}
